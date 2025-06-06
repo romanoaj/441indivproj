@@ -48,29 +48,23 @@ if __name__ == '__main__':
         type=int,
         default=5,
         required=False,
-        help='Number of meters to use in CHM smoothing filter. Default = 5.'
-    )
-
-    parser.add_argument(
-        '--ws_for_tree_detection',
-        type=int,
-        default=5,
-        required=False,
-        help='Window size, in meters, used to detect local maxima in tree_detection method. Default = 5.'
+        help='Number of meters to use in CHM smoothing filter. If --ws-in-pixels is passed, this int will ' \
+        'be evaluated as a number of pixels. Otherwise, this number will be in the units of your CHM.' \
+        'Default = 5.'
     )
 
     parser.add_argument(
         '--ws_in_pixels',
-        type=bool,
         action='store_true',
         required=False,
-        help='If given, window size will be evaluated in pixels, not meters. Default = false.'
+        help='If given, window size will be evaluated in pixels, not units. Units depend on whatever your CHM is. Default = false.'
     )
 
     parser.add_argument(
         '--min_height',
         type=int,
-        required=True,
+        required=False,
+        default=5,
         help='Minimum height of a tree in meters. Threshold below which a pixel or a point cannot be a local maxima'
     )
     
@@ -85,10 +79,10 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--rem_below',
-        type=int,
-        required=True,
-        help='Used to screen out small trees. In meters. Trees below this height are not evaluated'
+        '--store_las',
+        action='store_true',
+        required=False,
+        help=''
     )
 
     args = parser.parse_args()
@@ -115,13 +109,9 @@ if __name__ == '__main__':
 
     chm_smoothby = args.smooth
     window_size = args.ws_for_tree_detection
-    # ask: can i assume that if someone wants to use ws_in_pixels=True for filter_chm, they
-    # also want to use that option for tree_detection? or nah
     ws_in_pixels = args.ws_in_pixels
     hmin = args.hmin
     cd_algo = args.cd_algo
-    treetop_min = args.rem_below
-
     timer_start = datetime.now()
 
     # set input files -- all are strings containing the path to the data file
@@ -138,16 +128,16 @@ if __name__ == '__main__':
     pc.filter_chm(chm_smoothby, ws_in_pixels=ws_in_pixels)
 
     # tree detection with local maxima filter
-    pc.tree_detection(pc.chm, window_size, ws_in_pixels=ws_in_pixels, hmin=hmin)
+    pc.tree_detection(pc.chm, window_size, ws_in_pixels=ws_in_pixels, hmin=hmin+2) # explain why u did the plus 2 in docs 
 
     # clip trees to bounding box (ASK -- done in preprocessing right?)
-    pc.clip_trees_to_bbox(inbuf=11) # ASK -- do we want 11?
+    pc.clip_trees_to_bbox() # i took out the inbuf=11 arg here 
     # ASK -- do we want to do this step even? do we do the clipping in the preprocessing step?
 
     # crown delineation
-    pc.crown_delineation(algorithm=cd_algo, th_tree=15.,
+    pc.crown_delineation(algorithm=cd_algo, th_tree=2.,
                          th_seed=0.7, th_crown=0.55, max_crown=10.)
-        # ASK abt vales for th_tree, th_seed, th_crown, max_crown
+        # ASK abt values for th_tree, th_seed, th_crown, max_crown
 
     # correct tree tops on steep terrain -- optional
     pc.correct_tree_tops()
@@ -159,7 +149,7 @@ if __name__ == '__main__':
     # screen small trees: 
         # removes small trees based on minimum
         # tree dataframe and crown raster is updated
-    pc.screen_small_trees(hmin=treetop_min, loc='top')
+    pc.screen_small_trees(hmin=hmin, loc='top')
     # ASK - how is this hmin different from the one used above??? 
 
     # convert raster crowns to polygons
@@ -171,7 +161,7 @@ if __name__ == '__main__':
     pc.quality_control()
 
     # export results
-    pc.export_raster(pc.chm, pc.outpath / '_chm.tif', 'CHM')
+    pc.export_raster(pc.chm, pc.outpath / '_pc_chm.tif', 'CHM')
     pc.export_tree_locations(loc='top')
     pc.export_tree_locations(loc='top_cor')
     pc.export_tree_crowns(crowntype='crown_poly_raster')
