@@ -147,6 +147,9 @@ if __name__ == '__main__':
         pc = PyCrown(chm_path, dem_path, dsm_path, outpath=out_dir)
 
     # smooth CHM with a median filter, num meters is 5 by default but can be edited via command line args
+    # 1 is hardcoded for testing purposes -- it seems that this only works if this int matches the raster's resolution, and 
+    # some data type issues have been raised by this, and by the resolution of the .tifs i am currently working with.
+    # tldr: under construction
     pc.filter_chm(1, ws_in_pixels=True)
 
     # tree detection with local maxima filter
