@@ -1,15 +1,13 @@
-[![manaakiwhenua-standards](https://github.com/manaakiwhenua/pycrown/workflows/manaakiwhenua-standards/badge.svg)](https://github.com/manaakiwhenua/manaakiwhenua-standards)
-
 
 # PyCrown - A Flexible Adaptation
-* Original PyCrown code by Dr. Jan Schindler
-* Adaptation by Ava Romano (<mailto:ajromano@calpoly.edu>)
+* Original PyCrown module by Dr. Jan Schindler
+* Adaptation by Ava Romano (<mailto:ajromano@calpoly.edu>), advised by Michael Huggins
 
 Published under GNU GPLv3
 
 
 # Summary
-The purpose of this repo is to document the work done on my individual project for GEOG 441, Advanced Geospatial Applications, at Cal Poly. This has involved two main undertakings: development of a Python-PDAL script to generate a CHM, DEM, DSM, and hag-normalized las file, and a flexible version of the open-source PyCrown script authored by Dr. Jan Schindler. 
+The purpose of this repo is to document the work done on my individual project for GEOG 441, Advanced Geospatial Applications, at California Polytechnic State University. This has involved two main undertakings: development of a Python-PDAL script to generate a CHM, DEM, DSM, and hag-normalized las file, and a flexible version of the open-source PyCrown script authored by Dr. Jan Schindler. 
 
 This repo is not intended to provide a in-depth description of PyCrown. For that purpose, please see the original PyCrown repo (<https://github.com/manaakiwhenua/pycrown>).
 
@@ -48,3 +46,52 @@ In all Writers.gdal stages, resolution is hardcoded to 0.3, and meters are the a
 
 ## To use this script in a terminal (with your environment activated)
 `python preprocessing.py --las_path *path/to/las/* --out_dir *path/to/directory/* --clip --geojson *path/to/geojson/*`
+
+# Flexible PyCrown Adaptation
+My goal with this adaptation was to create a singular PyCrown script that takes data sources and method parameters as command line arguments so that it can be repeatedly run from the command-line without need for back-and-forth editing. 
+
+### Note:
+This part of the repo is to document my work up to this point.
+
+However, this segment of the project is not finished. Running flexy_pc.py as it current sits in this repo will produce errors. 
+
+I am actively working through debugging it, and adding extra options to increase customization and adaptability. 
+
+### A premediation on my goals, background and this project: 
+**My overall goal** is to create a version of pycrown.py that the user need not edit (or need not edit extensively) to be useful to them. My way of achieving this thus far has been to carefully read the methods that make up pycrown.py, understand what arguments they take (or can take), and do my best to assess what arguments are important to allow the user to customize.
+
+*As a disclaimer*, I am an undergraduate student, and this is my first time working with tree crown delineation and segmentation. It is entirely possible that I might make an oversight regarding what parameters are important to include as command-line arguments, and which are not. 
+
+That being said -- If you come across this project and have an idea you feel could improve it, please reach out. 
+My goal is to make this script as flexible and useful to as many people as possible, and that includes garnering inputs from many sources, so external recommendations are always welcome.
+
+## My script and how it differs
+The original PyCrown script is still in this repo, under *pycrown/pycrown.py*. 
+
+My adaptation can be found in *mywork/flexy_pc.py*.
+
+### Main changes made to pycrown.py
+* Adding command-line arguments for data sources and certain method parameters
+* More to come!
+
+## Arguments to flexy_pc.py
+**--chm:** Path to input CHM. Can be relative or absolute. Type=str. \[Required\]
+
+**--dsm:** Path to input DSM. Can be relative or absolute. Type=str. \[Required\]
+
+**--dem:** Path to input DEM/DTM. Can be relative or absolute. Type=str. \[Required\]
+
+**--las_path:** Path to input las/z. Can be relative or absolute. Only necessary if you wish to classify your point cloud into individual trees and store it externally. Giving a las_path with set the store_las parameter of "the crowns_to_polys_smooth" method to True. Point cloud should be normalized to height above ground -- this can be done with the attached preprocessing script. Type=str. \[Optional\]
+
+**--out_dir:** Path to directory where results (tree top locations .shp, tree crowns .shp, optional tree-classified .las file) will be stored. Can be relative or absolute. Type=str. \[Required\]
+
+**--smooth:** Specifies the number of units to use in CHM smoothing filter. If --ws-in-pixels is passed, this int will be evaluated as a number of pixels. Otherwise, this number will be in the units of your CHM. However, the default value is as such because meters are the assumed unit. You should set this to be larger if you are working in feet. Default=5. Type=int. \[Optional\]
+
+**--ws_for_tree_detection:** 
+
+**--ws_in_pixels:** If given, window size will be evaluated in pixels, not units. Units depend on whatever your CHM is. Default = false. Type=int. \[Optional\].
+
+** 
+
+**--min_height:** Minimum height of a tree in CHM units. Threshold below which a pixel or a point cannot be a local maxima. Default is as such because meters are the assumed unit. You should set this to be larger if you are working in feet. Default=5. Type=int. \[Optional\].'
+

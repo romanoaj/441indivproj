@@ -21,13 +21,13 @@ parser.add_argument(
     '--las_path',
     type=str,
     required=True,
-    help='Path to input las/z file')
+    help='Path to input las/z file. Type=str. [Required]')
 
 parser.add_argument(
     '--out_dir',
     type=str,
     required=True,
-    help='Path to directory where results (CHM, DSM, DEM, normalized las) will be written'
+    help='Path to directory where results (CHM, DSM, DEM, normalized las) will be written. Type=str. [Required]'
 )
 
 parser.add_argument(
@@ -37,7 +37,7 @@ parser.add_argument(
     required=True,
     help='Whether or not you would like the preprocessing script to clip your las data to a smaller extent.' \
     'If you would, do: "--clip" with "--geojson" and include your geojson (in the same crs as your las data) which delineates your target extent.' \
-    'If not, do: --no-clip.'
+    'If not, do: --no-clip. [Required]'
 )
 
 parser.add_argument(
@@ -45,15 +45,31 @@ parser.add_argument(
     type=str,
     required=False,
     help='Optional path to a geojson, if you would like to clip your las data to a smaller extent.' \
-    'Only pass in if --clip is marked as True. geojson and las crs must match exactly.'
+    'Only pass in if --clip is marked as True. geojson and las crs must match exactly. Type=str. [Optional]'
 )
 
 parser.add_argument(
-    '--window_size',
+    '--ws_chm',
     type=int,
     default=1,
     required=False,
-    help='window_size argument to be used for the PDAL Writers.gdal stage. Default is 1.'
+    help='window_size argument to be used for the PDAL Writers.gdal stage that generates the CHM. Default is 1. Type=int. [Optional]'
+)
+
+parser.add_argument(
+    '--ws_dem',
+    type=int,
+    default=5,
+    required=False,
+    help='window_size argument to be used for the PDAL Writers.gdal stage that generates the DEM. Default is 5. Type=int. [Optional].'
+)
+
+parser.add_argument(
+    '--ws_dsm',
+    type=int,
+    default=1,
+    required=False,
+    help='window_size argument to be used for the PDAL Writers.gdal stage that generates the DSM. Default is 1. Type=int. [Optional].'
 )
 
 args = parser.parse_args()
@@ -70,15 +86,14 @@ gdf_path = Path(args.geojson)
 if not gdf_path.is_absolute():
     gdf_path = (Path.cwd() / gdf_path).resolve()
 
-window_size = args.window_size
+ws_chm = args.ws_chm
+ws_dem = args.ws_dem
+ws_dsm = args.ws_dsm
 
 
 #%%
 
-# laz_path = Path('/Users/avaromano/441/441indivproj/mywork/data/USGS_LPC_CA_CarrHirzDeltaFires_2019_B19_10TDL0465045112.laz')
-
 # create CHM, DSM, DEM, DTM output paths
-#out_dir = Path("/Users/avaromano/441/441indivproj/mywork/result")
 print(out_dir)
 stem = laz_path.stem
 chm_path = out_dir/(f"{stem}_chm.tif")
@@ -92,12 +107,9 @@ pipeline = pdal.Reader.las(filename=laz_path).pipeline()
 classify_low_noise = pdal.Filter.elm() # ASK if need args = maybe if there's time
 classify_outlier = pdal.Filter.outlier() # ASK if need args = maybe via command line if time --> make as flexible as possible 
 filter_noise = pdal.Filter.expression(expression="Classification != 7")
+
 # 1: make polygon in Q, get layer extent, export as geojson/geopkg/shp, add column
 
-#%% 
-# QUESTION 2: do we want to make this step optional?
-# QUESTION 3: why didn't the relative path work for gpd.read_file? 
-# TODO: take file name as command line arg
 if args.clip and not args.geojson:
     sys.exit("No geojson given to clip with")
 
@@ -117,8 +129,8 @@ if args.clip and args.geojson:
 
     # step 4: select points where val = 99 (which are points within bbox)
     select_points_in_bbox = pdal.Filter.expression(expression="val == 99")
-#%% 
-""" gdf_path = Path("/Users/avaromano/441/441indivproj/mywork/data/little_poly.geojson")
+""" #%% 
+gdf_path = Path("/Users/avaromano/441/441indivproj/mywork/data/little_poly.geojson")
 gdf = gpd.read_file(str(gdf_path))
 gdf['val'] = 99
 gdf.to_file(str(gdf_path))
@@ -137,7 +149,7 @@ height_above_ground = pdal.Filter.hag_nn(count=2)
 make_DSM = pdal.Writer.gdal(
     filename=dsm_path,
     output_type="max",
-    window_size=window_size,
+    window_size=ws_dsm,
     resolution=0.3
     )
 
@@ -146,7 +158,7 @@ make_DEM = pdal.Writer.gdal(
     filename=dem_path, 
     output_type="min",
     resolution=0.3,
-    window_size=window_size,
+    window_size=ws_dem,
     where="(Classification == 2) && (ReturnNumber == NumberOfReturns)"
     )
 
@@ -159,19 +171,22 @@ make_z_hag = pdal.Filter.ferry(
 make_CHM = pdal.Writer.gdal(
     filename=chm_path,
     resolution=0.3,
-    window_size=window_size,
+    window_size=ws_chm,
     output_type="max",
     where="ReturnNumber == 1" 
 )
-#%%
+
 # step 10: write to las
 output_las = out_dir/(f"{stem}_processed.laz")
 write_to_las = pdal.Writer.las(filename=output_las) # ASK -- want any other args? 
+
 # 11: append to pipeline
-# put on diff lines and specfy to add if not none 
 pipeline |= classify_low_noise | classify_outlier | filter_noise 
-pipeline |= create_dimension | assign_dimension | select_points_in_bbox 
+if args.clip and args.geojson: pipeline |= create_dimension | assign_dimension | select_points_in_bbox 
 pipeline |= height_above_ground
-pipeline |= make_DSM | make_DEM | make_z_hag | make_CHM 
+pipeline |= make_DSM | make_DEM | make_z_hag | make_CHM
+pipeline |= write_to_las
 
 pipeline.execute()
+
+# %%
