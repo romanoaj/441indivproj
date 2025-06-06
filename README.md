@@ -2,8 +2,8 @@
 
 
 # PyCrown - A Flexible Adaptation
-Original PyCrown code by Dr. Jan Schindler
-Adaptation by Ava Romano (<mailto:ajromano@calpoly.edu>)
+* Original PyCrown code by Dr. Jan Schindler
+* Adaptation by Ava Romano (<mailto:ajromano@calpoly.edu>)
 
 Published under GNU GPLv3
 
