@@ -1,9 +1,7 @@
-name: pdal
+name: preprocess_env
 channels:
   - conda-forge
 dependencies:
   - python-pdal
   - pdal
-  - jupyterlab
   - geopandas
-prefix: /Users/avaromano/miniforge3/envs/pdal
