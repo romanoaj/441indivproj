@@ -75,9 +75,7 @@ My adaptation can be found in *mywork/flexy_pc.py*.
 * More to come!
 
 ## Using flexy_pc.py
-Follow the "installation and environment setup" steps given in the [original PyCrown module](<https://github.com/manaakiwhenua/pycrown>). In your PyCrown environment, run the tests, install the PyCrown module, run the example.py script, and compare your results to those in the original Git repo to ensure that the original PyCrown module works on your system.
-
-### The script flexy_pc.py can by run with the below arguments.
+Follow the "**Installation and environment setup**" steps given in the [original PyCrown module](<https://github.com/manaakiwhenua/pycrown>). In your PyCrown environment, run the tests, install the PyCrown module, run the example.py script, and compare your results to those in the original Git repo to ensure that the original PyCrown module works on your system.
 
 ## Arguments to flexy_pc.py
 **--chm:** Path to input CHM. Can be relative or absolute. Type=str. \[Required\]
@@ -86,7 +84,8 @@ Follow the "installation and environment setup" steps given in the [original PyC
 
 **--dem:** Path to input DEM/DTM. Can be relative or absolute. Type=str. \[Required\]
 
-**--las_path:** Path to input las/z. Can be relative or absolute. Only necessary if you wish to classify your point cloud into individual trees and store it externally. Giving a las_path with set the store_las parameter of "the crowns_to_polys_smooth" method to True. Point cloud should be normalized to height above ground -- this can be done with the attached preprocessing script. Type=str. \[Optional\]
+**--las_path:** Path to input las/z. Can be relative or absolute. Only necessary if you wish to classify your point cloud into individual trees and store it externally. Point cloud should be normalized to height above ground -- this can be done with the attached preprocessing script. Type=str. \[Optional\]
+* Giving a las_path will set the 'store_las' parameter of the *crowns_to_polys_smooth* method to True.
 
 **--out_dir:** Path to directory where results (tree top locations .shp, tree crowns .shp, optional tree-classified .las file) will be stored. Can be relative or absolute. Type=str. \[Required\]
 
@@ -94,16 +93,16 @@ Follow the "installation and environment setup" steps given in the [original PyC
 
 **--ws_for_tree_detection:** Window size used to detect local maxima in the tree_detection method. Will be interpreted as the units your CHM is in unless --ws_in_pixels is given. Default=5. Type=int. \[Optional\]
 
-**--ws_in_pixels:** If given, window size will be evaluated in pixels, not units, for both the . Units depend on whatever your CHM is. Default = false. Type=int. \[Optional\].
+**--ws_in_pixels:** If given, window size will be evaluated in pixels, not units, for both the *filter_chm* method and the *tree_detection* method. Units depend on whatever your CHM is. Default = false. Type=int. \[Optional\].
 
 **--hmin:** Minimum height of a tree in CHM units. Threshold below which a pixel or a point cannot be a local maxima. Default is as such because meters are the assumed unit. You should set this to be larger if you are working in feet. Default=5. Type=int. \[Optional\].'
-* *Note*: The same hmin is taken to be used for the tree_detection method and the screen_small_trees method, but for the former, it is passed as 'hmin+2' because it was not clear to us what exactly screen_small_trees does if tree_detection has an hmin parameter -- we are still looking into it, and it will probably change.
 
 **--cd_algo:** Crown delineation algorithm to be used, choose from: "dalponte_cython", "dalponte_numba", "dalponteCIRC_numba", "watershed_skimage". Default is dalponteCIRC_numba. Type=str. \[Optional\].
 
 **Notes:**
 * In the *clip_trees_to_bbox* method, inbuf is hardcoded to 1. This is because we tried testing by not passing any parameters to this method, and the "No clipping method" error was thrown. To temporarily remediate this, I hardcoded inbuf to 1. It might be that this method is not necessary unless clipping is required, and I can take it out altogther. Ie, it's in progress. 
 * In the *filter_chm* method, window size is currently hardcoded to 1 for testing purposes. It seems that this method only works if the window_size number matches the raster's resolution. We are also experiencing some data type issues which may be occurring because of our raster resolutions. Ie, also in progress.
+* The same hmin is taken to be used for the *tree_detection* method and the *screen_small_trees* method, but for the former, it is passed as 'hmin+2' because it was not clear to us what exactly *screen_small_trees* does if *tree_detection* has an hmin parameter -- we are still looking into it, and it will probably change.
 * My code is thoroughly commented at the moment, mostly with notes to myself. It is not difficult to read, but there is a lot of extra fluff in there at the moment. This is temporary, and will change as I make progress and update this repo.
 
 ## Current bug:
@@ -115,7 +114,7 @@ As I continue to develop this project over the coming weeks/months, my focuses w
 * Getting my pycrown-adapted script (*flexy_pc.py*) to actually work
 * Understanding the methods available in the PyCrown object, which to include in my script, and what of their parameters are important to make optional on the command line
 * Creation of a docker file to containerize my development environments and make them even more portable and widely reusable --> Potentially utilize quay.io, and also Git Action to connect to quay.io
-* (Far ahead) Possibley even update PyCrown to newer Python versions
+* (Far ahead) Possibly even update PyCrown to newer Python versions
 
 # Final notes
 Many thanks to Dr. Jan Schindler for producing the entire code base that this project is built on, and to Prof. Michael Huggins at Cal Poly for constant guidance and advice regarding this project. 
