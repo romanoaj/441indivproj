@@ -58,19 +58,19 @@ However, this segment of the project is not finished. Running flexy_pc.py as it 
 I am actively working through debugging it, and adding extra options to increase customization and adaptability. 
 
 ### On my goals and background as they relate to this project: 
-**My overall goal** is to create a version of pycrown.py that the user need not edit (or need not edit extensively) to be useful to them. My way of achieving this thus far has been to carefully read the methods that make up pycrown.py, understand what arguments they take (or can take), and do my best to assess what arguments are important to allow the user to customize.
+**My overall goal** is to create a PyCrown script that the user need not edit (or need not edit extensively) to be useful to them. My way of achieving this thus far has been to carefully read the methods that make up pycrown.py, understand what arguments they take (or can take), and do my best to assess what arguments are important to allow the user to customize.
 
-*As a disclaimer*, I am an undergraduate student, and this is my first time working with tree crown delineation and segmentation. It is entirely possible that I might make an oversight regarding what parameters are important to include as command-line arguments, and which are not. 
+*As a disclaimer*, I am an undergraduate student, and this is my first time working with tree crown delineation and segmentation. It is entirely possible that I might make an oversight regarding what parameters are important to include as command-line arguments and which are not. 
 
 That being said -- If you come across this project and have an idea you feel could improve it, please reach out. 
-My goal is to make this script as flexible and useful to as many people as possible, and that includes garnering inputs from many sources, so external recommendations are always welcome.
+My goal is to make this script as flexible and useful to as many people as possible, and that includes garnering inputs from many sources. External recommendations are always welcome.
 
 ## My script and how it differs
-The original PyCrown script is still in this repo, under *pycrown/pycrown.py*. 
+The original PyCrown script which mine is based on is still in this repo, under *pycrown/example.py*. 
 
 My adaptation can be found in *mywork/flexy_pc.py*.
 
-### Main changes made to pycrown.py
+### Main changes made
 * Adding command-line arguments for data sources and certain method parameters
 * More to come!
 
