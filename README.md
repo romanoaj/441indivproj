@@ -66,7 +66,7 @@ That being said -- If you come across this project and have an idea you feel cou
 My goal is to make this script as flexible and useful to as many people as possible, and that includes garnering inputs from many sources. External recommendations are always welcome.
 
 ## My script and how it differs
-The original PyCrown script which mine is based on is still in this repo, under *pycrown/example.py*. 
+The original PyCrown script which mine is based on is still in this repo, under *example/example.py*. 
 
 My adaptation can be found in *mywork/flexy_pc.py*.
 
